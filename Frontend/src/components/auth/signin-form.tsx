@@ -8,6 +8,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "../ui/label";
 import { useAuth } from "@/UseAuth/AuthContext";
 import { authService } from "@/services/authService";
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 const signInSchema = z.object({
   username: z.string().min(3, "Tên đăng nhập phải có ít nhất 3 ký tự"),
@@ -18,6 +20,8 @@ type SignInFormValues = z.infer<typeof signInSchema>;
 
 export function SigninForm({ className, ...props }: React.ComponentProps<"div">) {
   const { login } = useAuth();
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const {
     register,
     handleSubmit,
@@ -27,6 +31,7 @@ export function SigninForm({ className, ...props }: React.ComponentProps<"div">)
   });
 
   const onSubmit = async (data: SignInFormValues) => {
+    setAuthError(null);
     try {
       const { accessToken, user } = await authService.signIn(data.username, data.password);
       const profile = user ?? (await authService.fetchMe(accessToken));
@@ -45,6 +50,7 @@ export function SigninForm({ className, ...props }: React.ComponentProps<"div">)
       login(accessToken, normalizedUser);
     } catch (error) {
       console.error("Login failed:", error);
+      setAuthError("Sai tài khoản hoặc mật khẩu");
     }
   };
 
@@ -101,23 +107,47 @@ export function SigninForm({ className, ...props }: React.ComponentProps<"div">)
 
               {/* password */}
               <div className="flex flex-col gap-3">
-                <Label
-                  htmlFor="password"
-                  className="block text-sm"
-                >
-                  Mật khẩu
-                </Label>
-                <Input
-                  type="password"
-                  id="password"
-                  {...register("password")}
-                />
+                <div className="flex items-center justify-between">
+                  <Label
+                    htmlFor="password"
+                    className="block text-sm"
+                  >
+                    Mật khẩu
+                  </Label>
+                  <a
+                    href="/auth/forgot-password"
+                    className="text-xs text-cyan-500 hover:underline"
+                  >
+                    Quên mật khẩu?
+                  </a>
+                </div>
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    {...register("password")}
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-3 flex items-center text-slate-500 hover:text-slate-300"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="text-destructive text-sm">
                     {errors.password.message}
                   </p>
                 )}
               </div>
+
+              {authError && (
+                <p className="text-destructive text-sm text-center">
+                  {authError}
+                </p>
+              )}
 
               {/* nút đăng nhập */}
               <Button

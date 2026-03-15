@@ -9,6 +9,7 @@ import { Label } from "../ui/label";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useNavigate } from "react-router";
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
 
@@ -31,6 +32,8 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
   const navigate = useNavigate();
   const [emailError, setEmailError] = useState<string>("");
   const [checkingEmail, setCheckingEmail] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const {
     register,
     handleSubmit,
@@ -242,11 +245,21 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
                 >
                   Mật khẩu
                 </Label>
-                <Input
-                  type="password"
-                  id="password"
-                  {...register("password")}
-                />
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    {...register("password")}
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-3 flex items-center text-slate-500 hover:text-slate-300"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="text-destructive text-sm">
                     {errors.password.message}
@@ -262,11 +275,21 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
                 >
                   Xác nhận mật khẩu
                 </Label>
-                <Input
-                  type="password"
-                  id="confirmPassword"
-                  {...register("confirmPassword")}
-                />
+                <div className="relative">
+                  <Input
+                    type={showConfirmPassword ? "text" : "password"}
+                    id="confirmPassword"
+                    {...register("confirmPassword")}
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-3 flex items-center text-slate-500 hover:text-slate-300"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    aria-label={showConfirmPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                  >
+                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
                 {errors.confirmPassword && (
                   <p className="text-destructive text-sm">
                     {errors.confirmPassword.message}

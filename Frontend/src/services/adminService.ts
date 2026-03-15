@@ -9,6 +9,7 @@ import type {
   ReportSummary,
   StudentProfile,
   SystemWidget,
+  SecurityLogEntry,
 } from "@/types/admin";
 export interface UserQuery {
   search?: string;
@@ -195,6 +196,13 @@ export const adminService = {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return res.data;
+  },
+
+  async getSecurityLogs(limit = 100) {
+    const res = await api.get<{ logs: SecurityLogEntry[] }>("/admin/logs/security", {
+      params: { limit },
+    });
+    return res.data.logs;
   },
 };
 

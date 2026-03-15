@@ -115,3 +115,17 @@ export interface SystemWidget {
   [key: string]: any;
 }
 
+export interface SecurityLogEntry {
+  _id: string;
+  action: string;
+  target?: string;
+  ipAddress?: string;
+  metadata?: Record<string, string>;
+  createdAt: string;
+  user?: {
+    displayName: string;
+    email: string;
+    role: UserRole;
+  };
+}
+

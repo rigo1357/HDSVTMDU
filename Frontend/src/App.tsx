@@ -13,6 +13,8 @@ import PersonalInfoPage from "@/pages/PersonalInfoPage";
 import RegisteredActivitiesPage from "@/pages/RegisteredActivitiesPage";
 import CompletedActivitiesPage from "@/pages/CompletedActivitiesPage";
 import ChangePasswordPage from "@/pages/ChangePasswordPage";
+import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
+import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import { Toaster } from "@/components/ui/toaster";
 import AdminDashboardPage from "@/Admin/pages/AdminDashboardPage";
 import AdminUsersPage from "@/Admin/pages/AdminUsersPage";
@@ -51,6 +53,8 @@ function App() {
           <Route path="/NotificationsPage" element={<NotificationsPage />} />
           <Route path="/LoginPage" element={<LoginPage />} />
           <Route path="/SignUp" element={<SignUp />} />
+          <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
 
           {/* USER PAGES */}
           <Route path="/user/profile" element={<PersonalInfoPage />} />

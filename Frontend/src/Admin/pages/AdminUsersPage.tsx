@@ -1,4 +1,4 @@
-import { Pencil, Plus, Shield, Trash2 } from "lucide-react";
+import { Pencil, Plus, Shield, Trash2, CheckCircle2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
 import type { AdminUser } from "@/types/admin";
@@ -214,8 +214,8 @@ const AdminUsersPage = () => {
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="active">Hoạt động</SelectItem>
-                <SelectItem value="locked">Tạm khoá</SelectItem>
+                <SelectItem value="active">Hoạt động (kích hoạt)</SelectItem>
+                <SelectItem value="locked">Tạm khoá / vô hiệu hóa</SelectItem>
               </SelectContent>
             </Select>
             <DialogFooter><button type="submit" className="bg-blue-600 hover:bg-blue-700 rounded-xl px-6 py-2 text-white font-medium" disabled={loading}>Cập nhật</button></DialogFooter>
@@ -306,6 +306,7 @@ const AdminUsersPage = () => {
                       </span>
                     </td>
                     <td className="py-3 flex items-center justify-end gap-2">
+                      {/* Nút đổi tên nhanh */}
                       <button
                         onClick={async () => {
                           const displayName = prompt("Tên mới:", user.displayName || user.fullName) ?? user.displayName;
@@ -320,7 +321,31 @@ const AdminUsersPage = () => {
                       >
                         <Pencil size={16} />
                       </button>
+
+                      {/* Nút kích hoạt nhanh: set status=active => isActive & emailVerified = true (backend xử lý) */}
+                      {user.status !== "active" && (
+                        <button
+                          onClick={async () => {
+                            try {
+                              await adminService.updateUser(user._id, { status: "active" });
+                              toast.success(`Đã kích hoạt tài khoản ${user.displayName || user.fullName}`);
+                              fetchUsers();
+                            } catch (error) {
+                              console.error("Không thể kích hoạt tài khoản", error);
+                              toast.error("Không thể kích hoạt tài khoản");
+                            }
+                          }}
+                          className="p-2 rounded-xl border border-emerald-400/40 text-emerald-300 hover:bg-emerald-500/10"
+                          title="Kích hoạt tài khoản"
+                        >
+                          <CheckCircle2 size={16} />
+                        </button>
+                      )}
+
+                      {/* Popup phân quyền chi tiết */}
                       <RoleModal user={user} onUpdated={fetchUsers} />
+
+                      {/* Xoá tài khoản */}
                       <button
                         onClick={async () => {
                           if (!confirm(`Xoá tài khoản ${user.displayName || user.fullName}?`)) return;
