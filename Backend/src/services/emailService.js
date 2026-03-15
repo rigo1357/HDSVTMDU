@@ -77,4 +77,3 @@ export const sendPasswordResetEmail = async (user, token) => {
   });
 };
 
-

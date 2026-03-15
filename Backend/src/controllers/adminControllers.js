@@ -8,6 +8,7 @@ import SystemWidget from "../models/SystemWidget.js";
 import Report from "../models/Report.js";
 import ActivityRegistration from "../models/ActivityRegistration.js";
 import { sendEmail } from "../services/emailService.js";
+import SystemLog from "../models/SystemLog.js";
 
 const formatSearchRegex = (value) => new RegExp(value, "i");
 const ACTIVE_STATUSES = ["Approved", "ApprovedWithCondition", "Open"];
@@ -177,6 +178,18 @@ export const createUser = async (req, res) => {
   // Remove password from response
   const userResponse = user.toObject();
   delete userResponse.hashedPassword;
+  // Ghi log cho admin tạo tài khoản
+  try {
+    await SystemLog.create({
+      user: req.user?._id,
+      action: "ADMIN_CREATE_USER",
+      target: "admin/users",
+      metadata: { createdUserId: String(user._id), username },
+      ipAddress: req.ip,
+    });
+  } catch (_) {
+    // tránh làm hỏng flow nếu log lỗi
+  }
   
   res.status(201).json(userResponse);
 };
@@ -191,11 +204,33 @@ export const updateUser = async (req, res) => {
   if (displayName) user.displayName = displayName;
   if (email) user.email = email;
   if (role) user.role = role;
-  if (status) user.status = status;
+  if (status) {
+    user.status = status;
+    // Khi admin đặt trạng thái active, coi như kích hoạt và xác thực tài khoản
+    if (status === "active") {
+      user.isActive = true;
+      user.emailVerified = true;
+    }
+    if (status === "locked") {
+      user.isActive = false;
+    }
+  }
   if (password) user.hashedPassword = await bcrypt.hash(password, 10);
 
   await user.save();
   res.json(user);
+};
+
+export const listSecurityLogs = async (req, res) => {
+  const { limit = 100 } = req.query;
+  const parsedLimit = Math.max(1, Math.min(Number(limit) || 100, 500));
+
+  const logs = await SystemLog.find()
+    .populate("user", "displayName email role")
+    .sort({ createdAt: -1 })
+    .limit(parsedLimit);
+
+  res.json({ logs });
 };
 
 export const deleteUser = async (req, res) => {

@@ -29,6 +29,7 @@ import {
   approveActivityWithCondition,
   requestActivityEdit,
   rejectActivity,
+  listSecurityLogs,
 } from "../controllers/adminControllers.js";
 import { upload, uploadMultiple } from "../utils/uploadMiddleware.js";
 import { uploadFile, uploadMultipleFiles } from "../controllers/uploadControllers.js";
@@ -71,6 +72,9 @@ router.delete("/documents/:id", deleteDocument);
 
 router.get("/reports/summary", getReportSummary);
 router.get("/reports/export", exportReports);
+
+// Security logs
+router.get("/logs/security", listSecurityLogs);
 
 router.get("/advanced/features", listAdvancedFeatures);
 router.put("/advanced/features/:key", updateAdvancedFeature);

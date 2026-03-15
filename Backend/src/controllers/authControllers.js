@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import Session from "../models/Session.js";
 import { sendVerificationEmail, sendPasswordResetEmail } from "../services/emailService.js";
+import SystemLog from "../models/SystemLog.js";
 
 const ACCESS_TOKEN_TTL = "30d"; // ~1 tháng để phù hợp yêu cầu mới
 const REFRESH_TOKEN_TTL = 14 * 24 * 60 * 60 * 1000; // 14 ngày
@@ -137,6 +138,15 @@ export const signIn = async (req, res) => {
       secure: true,
       sameSite: "none", //backend, frontend deploy riêng
       maxAge: REFRESH_TOKEN_TTL,
+    });
+
+    // ghi log đăng nhập thành công
+    await SystemLog.create({
+      user: user._id,
+      action: "LOGIN_SUCCESS",
+      target: "auth/signin",
+      metadata: { username: user.username },
+      ipAddress: req.ip,
     });
 
     // trả access token về trong res
